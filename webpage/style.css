@@ -217,7 +217,7 @@ footer a:hover {
 }
 
 /* colorful animation */
-body {
+/* body {
 	background: linear-gradient(to bottom, #000000, #ffffff);
 	background-size: 400% 400%;
 	animation: gradientBG 15s ease infinite;
@@ -246,4 +246,35 @@ body {
   
   .background-animation canvas {
 	display: block;
+  } */
+  /* index */
+  .index {
+	position: fixed;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 1;
   }
+  
+  .index ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+  }
+  
+  .index li {
+	margin-bottom: 10px;
+  }
+  
+  .index a {
+	display: block;
+	padding: 10px;
+	background-color: #E3E9F1;
+	color: #E3E9F1;
+	text-decoration: none;
+  }
+  
+  .index a.active {
+	background-color: #E3E9F1;
+	color: #E3E9F1;
+  }
+  

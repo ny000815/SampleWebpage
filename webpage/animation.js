@@ -1,61 +1,58 @@
-const canvas = document.createElement('canvas');
-const context = canvas.getContext('2d');
-const colors = ['#ff2e63', '#19dcea', '#ffdc00'];
-const dots = [];
+//基準点の準備
+var elemTop = [];
 
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+//現在地を取得するための設定を関数でまとめる
+function PositionCheck(){
+    //headerの高さを取得
+	var headerH = $("#header").outerHeight(true);
+    //.scroll-pointというクラス名がついたエリアの位置を取得する設定
+	$(".scroll-point").each(function(i) {//.scroll-pointクラスがついたエリアからトップまでの距離を計算して設定
+		elemTop[i] =Math.round(parseInt($(this).offset().top-headerH));//追従するheader分の高さ（70px）を引き小数点を四捨五入
+	});
 }
 
-function setup() {
-  document.body.appendChild(canvas);
-  window.addEventListener('resize', resize);
-  resize();
-  for (let i = 0; i < 50; i++) {
-    const dot = new Dot();
-    dots.push(dot);
-  }
-  requestAnimationFrame(update);
-}
-
-class Dot {
-  constructor() {
-    this.color = colors[Math.floor(Math.random() * colors.length)];
-    this.radius = Math.random() * 4 + 2;
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
-    this.vx = Math.random() * 4 - 2;
-    this.vy = Math.random() * 4 - 2;
-  }
-
-  draw() {
-    context.beginPath();
-    context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    context.fillStyle = this.color;
-    context.fill();
-  }
-
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.x < 0 || this.x > canvas.width) {
-      this.vx *= -1;
+//ナビゲーションに現在地のクラスをつけるための設定
+function ScrollAnime() {//スクロールした際のナビゲーションの関数にまとめる
+	var scroll = Math.round($(window).scrollTop());
+	var NavElem = $("#g-nav li");//ナビゲーションのliの何番目かを定義するための準備
+	$("#g-nav li").removeClass('current');//全てのナビゲーションの現在地クラスを除去
+	if(scroll >= 0 && scroll < elemTop[1]) {//スクロール値が0以上 .scroll-point 1つめ（area-1）の高さ未満
+      $(NavElem[0]).addClass('current');//1つめのliに現在地クラスを付与
     }
-    if (this.y < 0 || this.y > canvas.height) {
-      this.vy *= -1;
-    }
-  }
+	else if(scroll >= elemTop[1] && scroll < elemTop[2]) {//.scroll-point 1つめ（area-1）以上.scroll-point 2つめ（area-2）未満
+     $(NavElem[1]).addClass('current');//2つめのliに現在地クラスを付与
+    } 
+    else if(scroll >= elemTop[2] && scroll < elemTop[3]) {//.scroll-point 2つめ（area-2）以上.scroll-point 3つめ（area-3）未満
+     $(NavElem[2]).addClass('current');//3つめのliに現在地クラスを付与
+    } 
+    else if(scroll >= elemTop[3]) {// .scroll-point 3つめ（area-3）以上
+      $(NavElem[3]).addClass('current');//4つめのliに現在地クラスを付与
+    } 
 }
 
-function update() {
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  for (let i = 0; i < dots.length; i++) {
-    const dot = dots[i];
-    dot.draw();
-    dot.update();
-  }
-  requestAnimationFrame(update);
-}
+//ナビゲーションをクリックした際のスムーススクロール
+$('#g-nav a').click(function () {
+	var elmHash = $(this).attr('href'); //hrefの内容を取得
+	var headerH = $("#header").outerHeight(true);//追従するheader分の高さ（70px）を引く
+	var pos = Math.round($(elmHash).offset().top-headerH);	//headerの高さを引き小数点を四捨五入
+	$('body,html').animate({scrollTop: pos}, 500);//取得した位置にスクロール※数値が大きいほどゆっくりスクロール
+	return false;//リンクの無効化
+});
 
-setup();
+
+// 画面をスクロールをしたら動かしたい場合の記述
+$(window).scroll(function () {
+	PositionCheck();/* 現在地を取得する関数を呼ぶ*/
+	ScrollAnime();/* ナビゲーションに現在地のクラスをつけるための関数を呼ぶ*/
+});
+
+// ページが読み込まれたらすぐに動かしたい場合の記述
+$(window).on('load', function () {
+	PositionCheck();/* 現在地を取得する関数を呼ぶ*/
+	ScrollAnime();/* ナビゲーションに現在地のクラスをつけるための関数を呼ぶ*/
+});
+
+$(window).resize(function() {
+  //リサイズされたときの処理
+  PositionCheck()
+});
